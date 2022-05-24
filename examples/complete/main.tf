@@ -13,6 +13,10 @@ terraform {
   }
 }
 
+provider "aws" {
+  region = "us-west-2"
+}
+
 module "network" {
   source  = "app.terraform.io/beantown/network/aws"
   version = "0.1.5"
@@ -29,13 +33,24 @@ module "network" {
   region_code                     = "usw2"
 }
 
-provider "aws" {
-  region = "us-west-2"
+data "aws_ami" "amazon_linux2" {
+  most_recent = true
+  owners      = ["amazon"]
+
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
+  filter {
+    name   = "name"
+    values = ["amzn2-ami-kernel-5.10-*-gp2"]
+  }
 }
 
 module "worker_autoscaling" {
   source = "../.."
 
+  ami                   = data.aws_ami.amazon_linux2.id
   cluster_name          = "test-usw2"
   control_plane_ip      = "10.0.0.8"
   env                   = "test"

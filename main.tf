@@ -3,20 +3,6 @@
 # +-+-+-+-+ +-+-+-+-+-+-+-+-+-+ +-+-+-+-+
 # 2022
 
-data "aws_ami" "amazon_linux2" {
-  most_recent = true
-  owners      = ["amazon"]
-
-  filter {
-    name   = "virtualization-type"
-    values = ["hvm"]
-  }
-  filter {
-    name   = "name"
-    values = ["amzn2-ami-kernel-5.10-*-gp2"]
-  }
-}
-
 data "template_file" "join" {
   template = file("${path.module}/templates/user_data.sh")
 
@@ -27,14 +13,14 @@ data "template_file" "join" {
 }
 
 resource "aws_key_pair" "cluster_nodes" {
-  key_name   = "cluster-worker-nodes"
+  key_name   = "${var.cluster_name}-workers"
   public_key = var.public_key
 }
 
 resource "aws_launch_configuration" "worker" {
   associate_public_ip_address = false
   name_prefix                 = "worker-"
-  image_id                    = var.ami == null ? data.aws_ami.amazon_linux2.id : var.ami
+  image_id                    = var.ami
   instance_type               = var.instance_type
   security_groups             = var.security_groups
   iam_instance_profile        = var.iam_instance_profile
@@ -94,9 +80,11 @@ resource "aws_autoscaling_policy" "cpu_utilization" {
   predictive_scaling_configuration {
     metric_specification {
       target_value = 10
-      predefined_load_metric_specification {
-        predefined_metric_type = "ASGTotalCPUUtilization"
-        resource_label         = "testLabel"
+      customized_load_metric_specification {
+        metric_data_queries {
+          id         = "load_sum"
+          expression = "SUM(SEARCH('{AWS/EC2,AutoScalingGroupName} MetricName=\"CPUUtilization\" ${aws_autoscaling_group.workers.name}', 'Sum', 3600))"
+        }
       }
       customized_scaling_metric_specification {
         metric_data_queries {

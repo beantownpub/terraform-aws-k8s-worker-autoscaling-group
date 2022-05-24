@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# disable shellcheck for terraform template vars
+# shellcheck disable=SC2154
+
 sudo su -
 swapoff -a
 yum update -y

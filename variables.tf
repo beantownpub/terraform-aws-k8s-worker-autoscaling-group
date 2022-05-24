@@ -3,7 +3,7 @@
 # +-+-+-+-+ +-+-+-+-+-+-+-+-+-+ +-+-+-+-+
 # 2022
 
-variable "ami" { default = null }
+variable "ami" {}
 variable "control_plane_ip" {}
 variable "cluster_name" {}
 variable "env" {}

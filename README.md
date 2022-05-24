@@ -25,14 +25,13 @@ No modules.
 | [aws_autoscaling_policy.cpu_utilization](https://registry.terraform.io/providers/hashicorp/aws/4.15.1/docs/resources/autoscaling_policy) | resource |
 | [aws_key_pair.cluster_nodes](https://registry.terraform.io/providers/hashicorp/aws/4.15.1/docs/resources/key_pair) | resource |
 | [aws_launch_configuration.worker](https://registry.terraform.io/providers/hashicorp/aws/4.15.1/docs/resources/launch_configuration) | resource |
-| [aws_ami.amazon_linux2](https://registry.terraform.io/providers/hashicorp/aws/4.15.1/docs/data-sources/ami) | data source |
 | [template_file.join](https://registry.terraform.io/providers/hashicorp/template/latest/docs/data-sources/file) | data source |
 
 ## Inputs
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_ami"></a> [ami](#input\_ami) | n/a | `any` | `null` | no |
+| <a name="input_ami"></a> [ami](#input\_ami) | n/a | `any` | n/a | yes |
 | <a name="input_cluster_name"></a> [cluster\_name](#input\_cluster\_name) | n/a | `any` | n/a | yes |
 | <a name="input_control_plane_ip"></a> [control\_plane\_ip](#input\_control\_plane\_ip) | n/a | `any` | n/a | yes |
 | <a name="input_env"></a> [env](#input\_env) | n/a | `any` | n/a | yes |
