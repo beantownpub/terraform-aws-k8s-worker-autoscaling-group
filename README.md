@@ -22,7 +22,9 @@ No modules.
 | Name | Type |
 |------|------|
 | [aws_autoscaling_group.workers](https://registry.terraform.io/providers/hashicorp/aws/4.15.1/docs/resources/autoscaling_group) | resource |
+| [aws_autoscaling_policy.cloudwatch_cpu](https://registry.terraform.io/providers/hashicorp/aws/4.15.1/docs/resources/autoscaling_policy) | resource |
 | [aws_autoscaling_policy.cpu_utilization](https://registry.terraform.io/providers/hashicorp/aws/4.15.1/docs/resources/autoscaling_policy) | resource |
+| [aws_cloudwatch_metric_alarm.instance_cpu](https://registry.terraform.io/providers/hashicorp/aws/4.15.1/docs/resources/cloudwatch_metric_alarm) | resource |
 | [aws_key_pair.cluster_nodes](https://registry.terraform.io/providers/hashicorp/aws/4.15.1/docs/resources/key_pair) | resource |
 | [aws_launch_configuration.worker](https://registry.terraform.io/providers/hashicorp/aws/4.15.1/docs/resources/launch_configuration) | resource |
 | [template_file.join](https://registry.terraform.io/providers/hashicorp/template/latest/docs/data-sources/file) | data source |
