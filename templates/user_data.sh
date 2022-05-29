@@ -63,7 +63,8 @@ discovery:
   bootstrapToken:
     token: ${kubernetes_join_token}
     apiServerEndpoint: "${control_plane_ip}:6443"
-    unsafeSkipCAVerification: true
+    caCertHashes:
+      - ${ca_cert_hash}
 nodeRegistration: {}
 EOF
 

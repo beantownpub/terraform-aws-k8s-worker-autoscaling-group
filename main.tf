@@ -9,6 +9,7 @@ data "template_file" "join" {
   vars = {
     kubernetes_join_token = var.kubernetes_join_token
     control_plane_ip      = var.control_plane_ip
+    ca_cert_hash          = var.ca_cert_hash
   }
 }
 
