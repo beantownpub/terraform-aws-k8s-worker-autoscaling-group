@@ -55,7 +55,8 @@ EOF
 yum install -y kubelet kubeadm kubectl --disableexcludes=kubernetes
 systemctl enable --now kubelet
 
-echo "CERT HASH: ${ca_cert_hash}" > ca_cert_hash.txt
+export CERT_HASH="${ca_cert_hash}"
+echo "CERT_HASH: ${CERT_HASH}" > ca_cert_hash.txt
 
 cat <<EOF | tee cluster-join-with-hash.yaml
 ---
@@ -82,8 +83,10 @@ discovery:
 nodeRegistration: {}
 EOF
 
-if [[ -z "${ca_cert_hash}" ]]; then
+if [[ -z ${CERT_HASH} ]]; then
+    echo "No cert hash" >> ca_cert_hash.txt
     kubeadm join --config cluster-join.yaml
 else
+    echo "Joining with cert hash" >> ca_cert_hash.txt
     kubeadm join --config cluster-join-with-hash.yaml
 fi
