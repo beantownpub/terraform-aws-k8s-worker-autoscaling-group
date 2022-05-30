@@ -79,14 +79,14 @@ discovery:
   bootstrapToken:
     token: ${kubernetes_join_token}
     apiServerEndpoint: "${control_plane_ip}:6443"
-    caCertHashes: []
+    unsafeSkipCAVerification: true
 nodeRegistration: {}
 EOF
 
 if [[ "${ca_cert_hash}" != "" ]]; then
-    echo "No cert hash" >> ca_cert_hash.txt
+    echo "Joining with ${ca_cert_hash}" >> ca_cert_hash.txt
     kubeadm join --config cluster-join-with-hash.yaml
 else
-    echo "Joining with cert hash" >> ca_cert_hash.txt
+    echo "Joining without cert hash" >> ca_cert_hash.txt
     kubeadm join --config cluster-join.yaml
 fi
