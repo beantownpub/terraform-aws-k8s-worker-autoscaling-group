@@ -34,7 +34,7 @@ No modules.
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
 | <a name="input_ami"></a> [ami](#input\_ami) | n/a | `any` | n/a | yes |
-| <a name="input_ca_cert_hash"></a> [ca\_cert\_hash](#input\_ca\_cert\_hash) | n/a | `any` | n/a | yes |
+| <a name="input_ca_cert_hash"></a> [ca\_cert\_hash](#input\_ca\_cert\_hash) | n/a | `any` | `null` | no |
 | <a name="input_cluster_name"></a> [cluster\_name](#input\_cluster\_name) | n/a | `any` | n/a | yes |
 | <a name="input_control_plane_ip"></a> [control\_plane\_ip](#input\_control\_plane\_ip) | n/a | `any` | n/a | yes |
 | <a name="input_env"></a> [env](#input\_env) | n/a | `any` | n/a | yes |

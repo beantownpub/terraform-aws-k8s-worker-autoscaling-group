@@ -4,7 +4,7 @@
 # 2022
 
 variable "ami" {}
-variable "ca_cert_hash" {}
+variable "ca_cert_hash" { default = null }
 variable "control_plane_ip" {}
 variable "cluster_name" {}
 variable "env" {}
