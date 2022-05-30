@@ -83,7 +83,7 @@ discovery:
 nodeRegistration: {}
 EOF
 
-if [[ -z ${CERT_HASH} ]]; then
+if [[ -z $${CERT_HASH} ]]; then
     echo "No cert hash" >> ca_cert_hash.txt
     kubeadm join --config cluster-join.yaml
 else
