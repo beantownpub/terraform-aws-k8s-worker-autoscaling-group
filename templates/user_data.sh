@@ -85,8 +85,8 @@ EOF
 
 if [[ "${ca_cert_hash}" != "" ]]; then
     echo "No cert hash" >> ca_cert_hash.txt
-    kubeadm join --config cluster-join.yaml
+    kubeadm join --config cluster-join-with-hash.yaml
 else
     echo "Joining with cert hash" >> ca_cert_hash.txt
-    kubeadm join --config cluster-join-with-hash.yaml
+    kubeadm join --config cluster-join.yaml
 fi
