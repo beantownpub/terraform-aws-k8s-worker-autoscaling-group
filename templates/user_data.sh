@@ -82,8 +82,8 @@ discovery:
 nodeRegistration: {}
 EOF
 
-if [[ "${ca_cert_hash}" != null ]]; then
-    kubeadm join --config cluster-join-with-hash.yaml
-else
+if [[ -z "${ca_cert_hash}" ]]; then
     kubeadm join --config cluster-join.yaml
+else
+    kubeadm join --config cluster-join-with-hash.yaml
 fi
