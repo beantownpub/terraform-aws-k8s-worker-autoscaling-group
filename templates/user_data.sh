@@ -55,7 +55,9 @@ EOF
 yum install -y kubelet kubeadm kubectl --disableexcludes=kubernetes
 systemctl enable --now kubelet
 
-cat <<EOF | tee cluster-join.yaml
+echo "CERT HASH: ${ca_cert_hash}" > ca_cert_hash.txt
+
+cat <<EOF | tee cluster-join-with-hash.yaml
 ---
 apiVersion: kubeadm.k8s.io/v1beta3
 kind: JoinConfiguration
@@ -68,5 +70,20 @@ discovery:
 nodeRegistration: {}
 EOF
 
-kubeadm join \
-    --config cluster-join.yaml
+cat <<EOF | tee cluster-join.yaml
+---
+apiVersion: kubeadm.k8s.io/v1beta3
+kind: JoinConfiguration
+discovery:
+  bootstrapToken:
+    token: ${kubernetes_join_token}
+    apiServerEndpoint: "${control_plane_ip}:6443"
+    caCertHashes: []
+nodeRegistration: {}
+EOF
+
+if [[ "${ca_cert_hash}" != null ]]; then
+    kubeadm join --config cluster-join-with-hash.yaml
+else
+    kubeadm join --config cluster-join.yaml
+fi
