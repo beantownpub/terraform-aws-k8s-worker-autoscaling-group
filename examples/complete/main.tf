@@ -2,7 +2,14 @@
 # |*|*|*|*| |J|A|L|G|R|A|V|E|S| |*|*|*|*|
 # +-+-+-+-+ +-+-+-+-+-+-+-+-+-+ +-+-+-+-+
 # 2022
-
+locals {
+  template_vars = {
+    kubernetes_join_token = "bizzbuzz",
+    control_plane_ip      = "10.8.0.3",
+    ca_cert_hash          = "foobar"
+  }
+  rendered_template = templatefile("../../templates/user_data.sh", local.template_vars)
+}
 terraform {
   required_providers {
     # Provider versions are pinned to avoid unexpected upgrades
@@ -62,4 +69,5 @@ module "worker_autoscaling" {
   subnets               = module.network.private_subnet_ids
   security_groups       = []
   target_group_arns     = []
+  user_data_rendered    = local.rendered_template
 }
