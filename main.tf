@@ -3,46 +3,57 @@
 # +-+-+-+-+ +-+-+-+-+-+-+-+-+-+ +-+-+-+-+
 # 2022
 
-data "template_file" "join" {
-  template = file("${path.module}/templates/user_data.sh")
-
-  vars = {
+locals {
+  key_pair_name = var.key_pair_name != null ? var.key_pair_name : "${var.cluster_name}-${var.asg_name}-key-pair"
+  template_vars = {
     kubernetes_join_token = var.kubernetes_join_token
     control_plane_ip      = var.control_plane_ip
     ca_cert_hash          = var.ca_cert_hash
   }
+  # rendered_template = templatefile("${path.module}/templates/user_data.sh", local.template_vars)
 }
+#data "template_file" "join" {
+#  template = file("${path.module}/templates/user_data.sh")
+#
+#  vars = {
+#    kubernetes_join_token = var.kubernetes_join_token
+#    control_plane_ip      = var.control_plane_ip
+#    ca_cert_hash          = var.ca_cert_hash
+#  }
+#}
 
-resource "aws_key_pair" "cluster_nodes" {
-  key_name   = "${var.cluster_name}-workers"
+resource "aws_key_pair" "nodes" {
+  key_name   = local.key_pair_name
   public_key = var.public_key
 }
 
-resource "aws_launch_configuration" "worker" {
-  associate_public_ip_address = false
-  name_prefix                 = "worker-"
+resource "aws_launch_configuration" "node" {
+  associate_public_ip_address = var.associate_public_ip_address
+  name_prefix                 = var.name_prefix
   image_id                    = var.ami
   instance_type               = var.instance_type
   security_groups             = var.security_groups
   iam_instance_profile        = var.iam_instance_profile
-  user_data                   = data.template_file.join.rendered
-  key_name                    = aws_key_pair.cluster_nodes.key_name
+  #user_data                   = data.template_file.join.rendered
+  user_data = var.user_data_rendered
+  key_name  = aws_key_pair.nodes.key_name
   lifecycle {
     create_before_destroy = true
   }
   root_block_device {
-    encrypted   = false
-    volume_size = 25
+    encrypted   = var.volume_encrypted
+    volume_size = var.volume_size
+    volume_type = var.volume_type
   }
 }
 
-resource "aws_autoscaling_group" "workers" {
-  name                 = "workers"
-  launch_configuration = aws_launch_configuration.worker.name
+resource "aws_autoscaling_group" "nodes" {
+  name                 = var.asg_name
+  launch_configuration = aws_launch_configuration.node.name
   min_size             = var.min_size
   max_size             = var.max_size
   target_group_arns    = var.target_group_arns
-  termination_policies = ["OldestInstance"]
+  termination_policies = var.termination_policies
   vpc_zone_identifier  = var.subnets
   tag {
     key                 = "kubernetes.io/cluster/${var.cluster_name}"
@@ -51,7 +62,7 @@ resource "aws_autoscaling_group" "workers" {
   }
   tag {
     key                 = "Name"
-    value               = "k8s-worker"
+    value               = var.node_name
     propagate_at_launch = true
   }
   tag {
@@ -66,7 +77,7 @@ resource "aws_autoscaling_group" "workers" {
   }
   tag {
     key                 = "Role"
-    value               = "worker"
+    value               = var.node_role
     propagate_at_launch = true
   }
   lifecycle {
@@ -75,8 +86,8 @@ resource "aws_autoscaling_group" "workers" {
 }
 
 resource "aws_autoscaling_policy" "cpu_utilization" {
-  autoscaling_group_name = aws_autoscaling_group.workers.name
-  name                   = "workers"
+  autoscaling_group_name = aws_autoscaling_group.nodes.name
+  name                   = var.autoscaling_policy_name
   policy_type            = "PredictiveScaling"
   predictive_scaling_configuration {
     metric_specification {
@@ -84,7 +95,7 @@ resource "aws_autoscaling_policy" "cpu_utilization" {
       customized_load_metric_specification {
         metric_data_queries {
           id         = "load_sum"
-          expression = "SUM(SEARCH('{AWS/EC2,AutoScalingGroupName} MetricName=\"CPUUtilization\" ${aws_autoscaling_group.workers.name}', 'Sum', 3600))"
+          expression = "SUM(SEARCH('{AWS/EC2,AutoScalingGroupName} MetricName=\"CPUUtilization\" ${aws_autoscaling_group.nodes.name}', 'Sum', 3600))"
         }
       }
       customized_scaling_metric_specification {
@@ -96,7 +107,7 @@ resource "aws_autoscaling_policy" "cpu_utilization" {
               namespace   = "AWS/EC2"
               dimensions {
                 name  = "AutoScalingGroupName"
-                value = aws_autoscaling_group.workers.name
+                value = aws_autoscaling_group.nodes.name
               }
             }
             stat = "Average"
